@@ -4,6 +4,9 @@ export interface Site {
   location: string | null;
   startDate: string;
   status: string;
+  latitude: number | null;
+  longitude: number | null;
+  completionPercentage: number;
 }
 
 export interface CreateSiteRequest {
@@ -11,4 +14,7 @@ export interface CreateSiteRequest {
   location: string;
   startDate: string;
   status: string;
+  latitude: number | null;
+  longitude: number | null;
+  completionPercentage: number;
 }

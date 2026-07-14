@@ -7,4 +7,7 @@ public class Site
     public string? Location { get; set; }
     public DateOnly StartDate { get; set; }
     public string Status { get; set; } = "active";
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
+    public int CompletionPercentage { get; set; }
 }

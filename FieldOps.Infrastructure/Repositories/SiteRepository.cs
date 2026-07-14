@@ -13,10 +13,15 @@ public class SiteRepository : ISiteRepository
         _connectionFactory = connectionFactory;
     }
 
+    private const string SelectColumns = """
+        id AS "Id", name AS "Name", location AS "Location", start_date AS "StartDate", status AS "Status",
+        latitude AS "Latitude", longitude AS "Longitude", completion_percentage AS "CompletionPercentage"
+        """;
+
     public async Task<IEnumerable<Site>> GetAllAsync()
     {
-        const string sql = """
-            SELECT id AS "Id", name AS "Name", location AS "Location", start_date AS "StartDate", status AS "Status"
+        var sql = $"""
+            SELECT {SelectColumns}
             FROM sites
             ORDER BY id
             """;
@@ -27,8 +32,8 @@ public class SiteRepository : ISiteRepository
 
     public async Task<Site?> GetByIdAsync(int id)
     {
-        const string sql = """
-            SELECT id AS "Id", name AS "Name", location AS "Location", start_date AS "StartDate", status AS "Status"
+        var sql = $"""
+            SELECT {SelectColumns}
             FROM sites
             WHERE id = @Id
             """;
@@ -40,8 +45,8 @@ public class SiteRepository : ISiteRepository
     public async Task<int> AddAsync(Site site)
     {
         const string sql = """
-            INSERT INTO sites (name, location, start_date, status)
-            VALUES (@Name, @Location, @StartDate, @Status)
+            INSERT INTO sites (name, location, start_date, status, latitude, longitude, completion_percentage)
+            VALUES (@Name, @Location, @StartDate, @Status, @Latitude, @Longitude, @CompletionPercentage)
             RETURNING id
             """;
 
@@ -53,7 +58,8 @@ public class SiteRepository : ISiteRepository
     {
         const string sql = """
             UPDATE sites
-            SET name = @Name, location = @Location, start_date = @StartDate, status = @Status
+            SET name = @Name, location = @Location, start_date = @StartDate, status = @Status,
+                latitude = @Latitude, longitude = @Longitude, completion_percentage = @CompletionPercentage
             WHERE id = @Id
             """;
 

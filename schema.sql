@@ -3,7 +3,10 @@ CREATE TABLE sites (
     name VARCHAR(150) NOT NULL,
     location VARCHAR(250),
     start_date DATE NOT NULL,
-    status VARCHAR(30) NOT NULL DEFAULT 'active'
+    status VARCHAR(30) NOT NULL DEFAULT 'active',
+    latitude NUMERIC(9,6),
+    longitude NUMERIC(9,6),
+    completion_percentage INT NOT NULL DEFAULT 0 CHECK (completion_percentage BETWEEN 0 AND 100)
 );
 
 CREATE TABLE personnel (

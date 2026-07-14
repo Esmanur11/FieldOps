@@ -23,3 +23,37 @@ body {
   background-color: var(--color-navy-950);
   color: #e2e8f0;
 }
+
+/* Leaflet dark-theme reskin — keeps the map consistent with the navy/orange design system.
+   !important guards against leaflet.css winning the cascade when it's imported after this
+   file in the bundle (its import order depends on which component pulls it in). */
+.leaflet-container {
+  background: var(--color-navy-900) !important;
+  font-family: inherit !important;
+}
+.leaflet-popup-content-wrapper {
+  background: var(--color-navy-800) !important;
+  color: #e2e8f0 !important;
+  border-radius: 0.5rem !important;
+}
+.leaflet-popup-tip {
+  background: var(--color-navy-800) !important;
+}
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+}
+.leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.75) !important;
+  color: #94a3b8 !important;
+}
+.leaflet-control-attribution a {
+  color: #94a3b8 !important;
+}
+.leaflet-control-zoom a {
+  background: var(--color-navy-800) !important;
+  color: #e2e8f0 !important;
+  border-color: var(--color-navy-700) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: var(--color-navy-700) !important;
+}

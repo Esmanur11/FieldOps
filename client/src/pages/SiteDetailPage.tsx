@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { Badge } from "../components/Badge";
 import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
+import { ProgressRing } from "../components/ProgressRing";
 import { getSiteById } from "../lib/api";
 import type { Site } from "../types/site";
 
@@ -16,7 +17,7 @@ function DetailField({ label, children }: DetailFieldProps) {
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-1 text-base text-white">{children}</p>
+      <div className="mt-1 text-base text-white">{children}</div>
     </div>
   );
 }
@@ -61,6 +62,9 @@ export function SiteDetailPage() {
             <DetailField label="Başlangıç Tarihi">{site.startDate}</DetailField>
             <DetailField label="Durum">
               <Badge>{site.status}</Badge>
+            </DetailField>
+            <DetailField label="Tamamlanma">
+              <ProgressRing percentage={site.completionPercentage} size={32} />
             </DetailField>
             <DetailField label="Şantiye ID">#{site.id}</DetailField>
           </div>

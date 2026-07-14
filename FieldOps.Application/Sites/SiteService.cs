@@ -31,7 +31,10 @@ public class SiteService
             Name = request.Name,
             Location = request.Location,
             StartDate = request.StartDate,
-            Status = request.Status
+            Status = request.Status,
+            Latitude = request.Latitude,
+            Longitude = request.Longitude,
+            CompletionPercentage = request.CompletionPercentage
         };
 
         return await _repository.AddAsync(site);
@@ -49,6 +52,9 @@ public class SiteService
         existing.Location = request.Location;
         existing.StartDate = request.StartDate;
         existing.Status = request.Status;
+        existing.Latitude = request.Latitude;
+        existing.Longitude = request.Longitude;
+        existing.CompletionPercentage = request.CompletionPercentage;
 
         await _repository.UpdateAsync(existing);
         return true;
@@ -60,6 +66,9 @@ public class SiteService
         Name = site.Name,
         Location = site.Location,
         StartDate = site.StartDate,
-        Status = site.Status
+        Status = site.Status,
+        Latitude = site.Latitude,
+        Longitude = site.Longitude,
+        CompletionPercentage = site.CompletionPercentage
     };
 }

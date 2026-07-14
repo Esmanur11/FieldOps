@@ -7,4 +7,7 @@ public class SiteDto
     public string? Location { get; set; }
     public DateOnly StartDate { get; set; }
     public string Status { get; set; } = string.Empty;
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
+    public int CompletionPercentage { get; set; }
 }

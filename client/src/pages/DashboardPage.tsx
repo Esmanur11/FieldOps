@@ -3,6 +3,7 @@ import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
 import { MachineTypeChart } from "../components/MachineTypeChart";
 import { PersonnelPerSiteChart } from "../components/PersonnelPerSiteChart";
+import { SitesMap } from "../components/SitesMap";
 import { getMachines, getPersonnel, getSites } from "../lib/api";
 import type { Machine } from "../types/machine";
 import type { Personnel } from "../types/personnel";
@@ -68,19 +69,26 @@ export function DashboardPage() {
       </div>
 
       {!isLoading && !loadError && (
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Card className="p-6">
-            <h2 className="mb-4 text-sm font-semibold text-white">
-              Şantiye Başına Personel Sayısı
-            </h2>
-            <PersonnelPerSiteChart personnel={personnel} sites={sites} />
+        <>
+          <Card className="mt-6 p-6">
+            <h2 className="mb-4 text-sm font-semibold text-white">Şantiye Konumları</h2>
+            <SitesMap sites={sites} />
           </Card>
 
-          <Card className="p-6">
-            <h2 className="mb-4 text-sm font-semibold text-white">Makine Tipi Dağılımı</h2>
-            <MachineTypeChart machines={machines} />
-          </Card>
-        </div>
+          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <Card className="p-6">
+              <h2 className="mb-4 text-sm font-semibold text-white">
+                Şantiye Başına Personel Sayısı
+              </h2>
+              <PersonnelPerSiteChart personnel={personnel} sites={sites} />
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="mb-4 text-sm font-semibold text-white">Makine Tipi Dağılımı</h2>
+              <MachineTypeChart machines={machines} />
+            </Card>
+          </div>
+        </>
       )}
     </Layout>
   );

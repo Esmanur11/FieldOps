@@ -19,5 +19,16 @@ public class CreateSiteRequestValidator : AbstractValidator<CreateSiteRequest>
         RuleFor(x => x.Status)
             .NotEmpty()
             .MaximumLength(30);
+
+        RuleFor(x => x.Latitude)
+            .InclusiveBetween(-90, 90)
+            .When(x => x.Latitude.HasValue);
+
+        RuleFor(x => x.Longitude)
+            .InclusiveBetween(-180, 180)
+            .When(x => x.Longitude.HasValue);
+
+        RuleFor(x => x.CompletionPercentage)
+            .InclusiveBetween(0, 100);
     }
 }

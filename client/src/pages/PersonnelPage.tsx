@@ -8,6 +8,7 @@ import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
 import { Modal } from "../components/Modal";
 import { Pagination } from "../components/Pagination";
+import { PersonnelCard } from "../components/PersonnelCard";
 import { RoleBadge } from "../components/RoleBadge";
 import {
   Table,
@@ -17,6 +18,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from "../components/Table";
+import { ViewToggle, type ViewMode } from "../components/ViewToggle";
 import { createPersonnel, getPersonnel, getSites } from "../lib/api";
 import type { CreatePersonnelRequest, Personnel } from "../types/personnel";
 import type { Site } from "../types/site";
@@ -57,6 +59,7 @@ export function PersonnelPage() {
   const [sortKey, setSortKey] = useState<SortKey>("fullName");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [view, setView] = useState<ViewMode>("card");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<CreatePersonnelRequest>(emptyForm(0));
@@ -160,7 +163,7 @@ export function PersonnelPage() {
         </Button>
       }
     >
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <div className="relative w-full max-w-xs">
           <Search
             size={16}
@@ -173,18 +176,46 @@ export function PersonnelPage() {
             className="w-full rounded-lg border border-navy-600 bg-navy-800 py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-brand-500"
           />
         </div>
+        <ViewToggle view={view} onChange={setView} />
       </div>
 
-      <Card>
-        {isLoading ? (
-          <p className="p-6 text-sm text-slate-400">Yükleniyor...</p>
-        ) : loadError ? (
-          <p className="p-6 text-sm text-red-400">{loadError}</p>
-        ) : visiblePersonnel.length === 0 ? (
-          <p className="p-6 text-sm text-slate-400">
+      {isLoading ? (
+        <Card className="p-6">
+          <p className="text-sm text-slate-400">Yükleniyor...</p>
+        </Card>
+      ) : loadError ? (
+        <Card className="p-6">
+          <p className="text-sm text-red-400">{loadError}</p>
+        </Card>
+      ) : visiblePersonnel.length === 0 ? (
+        <Card className="p-6">
+          <p className="text-sm text-slate-400">
             {searchTerm ? "Aramayla eşleşen personel bulunamadı." : "Henüz personel eklenmedi."}
           </p>
-        ) : (
+        </Card>
+      ) : view === "card" ? (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {paginatedPersonnel.map((person) => (
+              <PersonnelCard
+                key={person.id}
+                person={person}
+                siteName={siteNameById.get(person.siteId) ?? "—"}
+              />
+            ))}
+          </div>
+          <div className="mt-4">
+            <Card>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </Card>
+          </div>
+        </>
+      ) : (
+        <Card>
           <Table>
             <TableHead>
               <TableRow>
@@ -235,13 +266,13 @@ export function PersonnelPage() {
               ))}
             </TableBody>
           </Table>
-        )}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </Card>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </Card>
+      )}
 
       {isModalOpen && (
         <Modal title="Yeni Personel Ekle" onClose={() => setIsModalOpen(false)}>

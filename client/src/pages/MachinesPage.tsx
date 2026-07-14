@@ -5,6 +5,7 @@ import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
+import { MachineCard } from "../components/MachineCard";
 import { MachineTypeBadge } from "../components/MachineTypeBadge";
 import { Modal } from "../components/Modal";
 import { Pagination } from "../components/Pagination";
@@ -16,6 +17,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from "../components/Table";
+import { ViewToggle, type ViewMode } from "../components/ViewToggle";
 import { createMachine, getMachines, getSites } from "../lib/api";
 import type { CreateMachineRequest, Machine } from "../types/machine";
 import type { Site } from "../types/site";
@@ -57,6 +59,7 @@ export function MachinesPage() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [view, setView] = useState<ViewMode>("card");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<CreateMachineRequest>(emptyForm(0));
@@ -160,7 +163,7 @@ export function MachinesPage() {
         </Button>
       }
     >
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <div className="relative w-full max-w-xs">
           <Search
             size={16}
@@ -173,18 +176,46 @@ export function MachinesPage() {
             className="w-full rounded-lg border border-navy-600 bg-navy-800 py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-brand-500"
           />
         </div>
+        <ViewToggle view={view} onChange={setView} />
       </div>
 
-      <Card>
-        {isLoading ? (
-          <p className="p-6 text-sm text-slate-400">Yükleniyor...</p>
-        ) : loadError ? (
-          <p className="p-6 text-sm text-red-400">{loadError}</p>
-        ) : visibleMachines.length === 0 ? (
-          <p className="p-6 text-sm text-slate-400">
+      {isLoading ? (
+        <Card className="p-6">
+          <p className="text-sm text-slate-400">Yükleniyor...</p>
+        </Card>
+      ) : loadError ? (
+        <Card className="p-6">
+          <p className="text-sm text-red-400">{loadError}</p>
+        </Card>
+      ) : visibleMachines.length === 0 ? (
+        <Card className="p-6">
+          <p className="text-sm text-slate-400">
             {searchTerm ? "Aramayla eşleşen makine bulunamadı." : "Henüz makine eklenmedi."}
           </p>
-        ) : (
+        </Card>
+      ) : view === "card" ? (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {paginatedMachines.map((machine) => (
+              <MachineCard
+                key={machine.id}
+                machine={machine}
+                siteName={siteNameById.get(machine.siteId) ?? "—"}
+              />
+            ))}
+          </div>
+          <div className="mt-4">
+            <Card>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </Card>
+          </div>
+        </>
+      ) : (
+        <Card>
           <Table>
             <TableHead>
               <TableRow>
@@ -229,13 +260,13 @@ export function MachinesPage() {
               ))}
             </TableBody>
           </Table>
-        )}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </Card>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </Card>
+      )}
 
       {isModalOpen && (
         <Modal title="Yeni Makine Ekle" onClose={() => setIsModalOpen(false)}>
