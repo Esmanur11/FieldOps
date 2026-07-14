@@ -1,17 +1,12 @@
 import { AlertCircle, Lock, User } from "lucide-react";
-import { useState, type CSSProperties, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { FeatureShowcase } from "../components/FeatureShowcase";
+import { ParticleBackground } from "../components/ParticleBackground";
 import { login } from "../lib/api";
 import { setAuth } from "../lib/auth";
-
-const blueprintGridStyle: CSSProperties = {
-  backgroundImage:
-    "linear-gradient(rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.08) 1px, transparent 1px)",
-  backgroundSize: "48px 48px",
-};
 
 const stats = [
   { value: "6", label: "Şantiye" },
@@ -45,7 +40,7 @@ export function LoginPage() {
     <div className="flex min-h-screen bg-navy-950">
       {/* Marka / tanıtım paneli — mobilde gizli */}
       <div className="relative hidden overflow-hidden bg-navy-900 lg:flex lg:w-1/2 lg:items-center lg:justify-center">
-        <div className="pointer-events-none absolute inset-0" style={blueprintGridStyle} />
+        <ParticleBackground />
         <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-brand-500/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-brand-500/5 blur-3xl" />
 
