@@ -3,6 +3,7 @@ import { useState, type CSSProperties, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
+import { FeatureShowcase } from "../components/FeatureShowcase";
 import { login } from "../lib/api";
 import { setAuth } from "../lib/auth";
 
@@ -65,7 +66,11 @@ export function LoginPage() {
             yönetin; gerçek zamanlı görünürlük ve kontrol sağlayın.
           </p>
 
-          <div className="mt-10 flex items-center gap-6">
+          <div className="mt-8">
+            <FeatureShowcase />
+          </div>
+
+          <div className="mt-8 flex items-center gap-6">
             {stats.map((stat, index) => (
               <div key={stat.label} className="flex items-center gap-6">
                 {index > 0 && <div className="h-10 w-px bg-navy-700" />}
