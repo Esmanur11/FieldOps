@@ -18,7 +18,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/" },
   { label: "Sites", icon: Building2, to: "/sites" },
-  { label: "Personnel", icon: Users },
+  { label: "Personnel", icon: Users, to: "/personnel" },
   { label: "Machines", icon: Truck },
   { label: "Materials", icon: Package },
   { label: "Audits", icon: ClipboardCheck },

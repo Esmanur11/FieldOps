@@ -1,3 +1,4 @@
+using FieldOps.Application.Personnel;
 using FieldOps.Application.Sites;
 using FieldOps.Domain.Interfaces;
 using FieldOps.Infrastructure;
@@ -28,6 +29,10 @@ builder.Services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
 builder.Services.AddScoped<ISiteRepository, SiteRepository>();
 builder.Services.AddScoped<SiteService>();
 builder.Services.AddScoped<IValidator<CreateSiteRequest>, CreateSiteRequestValidator>();
+
+builder.Services.AddScoped<IPersonnelRepository, PersonnelRepository>();
+builder.Services.AddScoped<PersonnelService>();
+builder.Services.AddScoped<IValidator<CreatePersonnelRequest>, CreatePersonnelRequestValidator>();
 
 var app = builder.Build();
 
