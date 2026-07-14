@@ -1,14 +1,27 @@
+import {
+  Building2,
+  ClipboardCheck,
+  LayoutDashboard,
+  Package,
+  Truck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+import { NavLink } from "react-router-dom";
+
 interface NavItem {
   label: string;
-  enabled: boolean;
+  icon: LucideIcon;
+  to?: string;
 }
 
 const navItems: NavItem[] = [
-  { label: "Sites", enabled: true },
-  { label: "Personnel", enabled: false },
-  { label: "Machines", enabled: false },
-  { label: "Materials", enabled: false },
-  { label: "Audits", enabled: false },
+  { label: "Dashboard", icon: LayoutDashboard, to: "/" },
+  { label: "Sites", icon: Building2, to: "/sites" },
+  { label: "Personnel", icon: Users },
+  { label: "Machines", icon: Truck },
+  { label: "Materials", icon: Package },
+  { label: "Audits", icon: ClipboardCheck },
 ];
 
 export function Sidebar() {
@@ -20,23 +33,38 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 p-4">
-        {navItems.map((item) => (
-          <div
-            key={item.label}
-            className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium ${
-              item.enabled
-                ? "bg-brand-500/10 text-brand-500"
-                : "cursor-not-allowed text-slate-500"
-            }`}
-          >
-            <span>{item.label}</span>
-            {!item.enabled && (
+        {navItems.map((item) =>
+          item.to ? (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              end={item.to === "/"}
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-brand-500/10 text-brand-500"
+                    : "text-slate-300 hover:bg-navy-800 hover:text-white"
+                }`
+              }
+            >
+              <item.icon size={18} strokeWidth={2} />
+              <span>{item.label}</span>
+            </NavLink>
+          ) : (
+            <div
+              key={item.label}
+              className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-slate-500"
+            >
+              <span className="flex items-center gap-2.5">
+                <item.icon size={18} strokeWidth={2} />
+                <span>{item.label}</span>
+              </span>
               <span className="rounded-full bg-navy-800 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                 Yakında
               </span>
-            )}
-          </div>
-        ))}
+            </div>
+          ),
+        )}
       </nav>
     </aside>
   );
