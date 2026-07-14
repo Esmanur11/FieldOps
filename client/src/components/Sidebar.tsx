@@ -19,7 +19,7 @@ const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/" },
   { label: "Sites", icon: Building2, to: "/sites" },
   { label: "Personnel", icon: Users, to: "/personnel" },
-  { label: "Machines", icon: Truck },
+  { label: "Machines", icon: Truck, to: "/machines" },
   { label: "Materials", icon: Package },
   { label: "Audits", icon: ClipboardCheck },
 ];

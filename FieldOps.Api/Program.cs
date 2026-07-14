@@ -1,3 +1,4 @@
+using FieldOps.Application.Machines;
 using FieldOps.Application.Personnel;
 using FieldOps.Application.Sites;
 using FieldOps.Domain.Interfaces;
@@ -33,6 +34,10 @@ builder.Services.AddScoped<IValidator<CreateSiteRequest>, CreateSiteRequestValid
 builder.Services.AddScoped<IPersonnelRepository, PersonnelRepository>();
 builder.Services.AddScoped<PersonnelService>();
 builder.Services.AddScoped<IValidator<CreatePersonnelRequest>, CreatePersonnelRequestValidator>();
+
+builder.Services.AddScoped<IMachineRepository, MachineRepository>();
+builder.Services.AddScoped<MachineService>();
+builder.Services.AddScoped<IValidator<CreateMachineRequest>, CreateMachineRequestValidator>();
 
 var app = builder.Build();
 

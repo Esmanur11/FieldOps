@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
-import { getPersonnel, getSites } from "../lib/api";
+import { getMachines, getPersonnel, getSites } from "../lib/api";
+import type { Machine } from "../types/machine";
 import type { Personnel } from "../types/personnel";
 import type { Site } from "../types/site";
 
@@ -29,14 +30,16 @@ function KpiCard({ label, value, comingSoon = false }: KpiCardProps) {
 export function DashboardPage() {
   const [sites, setSites] = useState<Site[]>([]);
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
+  const [machines, setMachines] = useState<Machine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getSites(), getPersonnel()])
-      .then(([sitesData, personnelData]) => {
+    Promise.all([getSites(), getPersonnel(), getMachines()])
+      .then(([sitesData, personnelData, machinesData]) => {
         setSites(sitesData);
         setPersonnel(personnelData);
+        setMachines(machinesData);
       })
       .catch((err) =>
         setLoadError(err instanceof Error ? err.message : "Bilinmeyen bir hata oluştu"),
@@ -47,6 +50,7 @@ export function DashboardPage() {
   const totalSites = sites.length;
   const activeSites = sites.filter((site) => site.status === "active").length;
   const totalPersonnel = personnel.length;
+  const totalMachines = machines.length;
 
   return (
     <Layout title="FieldOps — Genel Bakış">
@@ -56,7 +60,7 @@ export function DashboardPage() {
         <KpiCard label="Toplam Şantiye" value={isLoading ? "…" : String(totalSites)} />
         <KpiCard label="Aktif Şantiye" value={isLoading ? "…" : String(activeSites)} />
         <KpiCard label="Personnel" value={isLoading ? "…" : String(totalPersonnel)} />
-        <KpiCard label="Machines" value="Yakında" comingSoon />
+        <KpiCard label="Machines" value={isLoading ? "…" : String(totalMachines)} />
         <KpiCard label="Materials" value="Yakında" comingSoon />
         <KpiCard label="Audits" value="Yakında" comingSoon />
       </div>
