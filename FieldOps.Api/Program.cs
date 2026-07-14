@@ -15,6 +15,15 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+const string ClientCorsPolicy = "ClientCorsPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(ClientCorsPolicy, policy =>
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 builder.Services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
 builder.Services.AddScoped<ISiteRepository, SiteRepository>();
 builder.Services.AddScoped<SiteService>();
@@ -29,6 +38,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(ClientCorsPolicy);
 
 app.MapControllers();
 

@@ -13,3 +13,7 @@ obj/
 
 ## Claude Code (local-only settings)
 .claude/settings.local.json
+
+## Frontend (client)
+client/node_modules
+client/dist
