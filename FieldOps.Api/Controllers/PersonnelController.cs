@@ -1,11 +1,13 @@
 using FieldOps.Application.Personnel;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FieldOps.Api.Controllers;
 
 [ApiController]
 [Route("api/personnel")]
+[Authorize]
 public class PersonnelController : ControllerBase
 {
     private readonly PersonnelService _personnelService;

@@ -1,11 +1,13 @@
 using FieldOps.Application.Sites;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FieldOps.Api.Controllers;
 
 [ApiController]
 [Route("api/sites")]
+[Authorize]
 public class SitesController : ControllerBase
 {
     private readonly SiteService _siteService;

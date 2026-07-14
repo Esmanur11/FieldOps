@@ -1,11 +1,13 @@
 using FieldOps.Application.Machines;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FieldOps.Api.Controllers;
 
 [ApiController]
 [Route("api/machines")]
+[Authorize]
 public class MachinesController : ControllerBase
 {
     private readonly MachineService _machineService;
