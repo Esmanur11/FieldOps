@@ -1,11 +1,14 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { Avatar } from "../components/Avatar";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
 import { Modal } from "../components/Modal";
+import { Pagination } from "../components/Pagination";
+import { RoleBadge } from "../components/RoleBadge";
 import {
   Table,
   TableBody,
@@ -17,6 +20,8 @@ import {
 import { createPersonnel, getPersonnel, getSites } from "../lib/api";
 import type { CreatePersonnelRequest, Personnel } from "../types/personnel";
 import type { Site } from "../types/site";
+
+const PAGE_SIZE = 10;
 
 function emptyForm(defaultSiteId: number): CreatePersonnelRequest {
   return {
@@ -51,6 +56,7 @@ export function PersonnelPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("fullName");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<CreatePersonnelRequest>(emptyForm(0));
@@ -135,6 +141,16 @@ export function PersonnelPage() {
     return sorted;
   }, [personnel, siteNameById, searchTerm, sortKey, sortDirection]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortKey, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(visiblePersonnel.length / PAGE_SIZE));
+  const paginatedPersonnel = visiblePersonnel.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
   return (
     <Layout
       title="FieldOps — Personel Yönetimi"
@@ -195,14 +211,21 @@ export function PersonnelPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {visiblePersonnel.map((person) => (
+              {paginatedPersonnel.map((person) => (
                 <TableRow
                   key={person.id}
                   onClick={() => navigate(`/personnel/${person.id}`)}
                   className="cursor-pointer"
                 >
-                  <TableCell className="font-medium text-white">{person.fullName}</TableCell>
-                  <TableCell>{person.role}</TableCell>
+                  <TableCell className="font-medium text-white">
+                    <span className="flex items-center gap-3">
+                      <Avatar name={person.fullName} />
+                      {person.fullName}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <RoleBadge role={person.role} />
+                  </TableCell>
                   <TableCell>{siteNameById.get(person.siteId) ?? "—"}</TableCell>
                   <TableCell>{person.hireDate}</TableCell>
                   <TableCell>
@@ -213,6 +236,11 @@ export function PersonnelPage() {
             </TableBody>
           </Table>
         )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </Card>
 
       {isModalOpen && (

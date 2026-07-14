@@ -6,6 +6,7 @@ import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
 import { Modal } from "../components/Modal";
+import { Pagination } from "../components/Pagination";
 import {
   Table,
   TableBody,
@@ -23,6 +24,8 @@ const emptyForm: CreateSiteRequest = {
   startDate: "",
   status: "active",
 };
+
+const PAGE_SIZE = 10;
 
 type SortKey = "name" | "location" | "startDate" | "status";
 type SortDirection = "asc" | "desc";
@@ -44,6 +47,7 @@ export function SitesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<CreateSiteRequest>(emptyForm);
@@ -118,6 +122,16 @@ export function SitesPage() {
     return sorted;
   }, [sites, searchTerm, sortKey, sortDirection]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortKey, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleSites.length / PAGE_SIZE));
+  const paginatedSites = visibleSites.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
   return (
     <Layout
       title="FieldOps — Şantiye Operasyon Yönetimi"
@@ -174,7 +188,7 @@ export function SitesPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {visibleSites.map((site) => (
+              {paginatedSites.map((site) => (
                 <TableRow
                   key={site.id}
                   onClick={() => navigate(`/sites/${site.id}`)}
@@ -191,6 +205,11 @@ export function SitesPage() {
             </TableBody>
           </Table>
         )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </Card>
 
       {isModalOpen && (

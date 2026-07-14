@@ -5,7 +5,9 @@ import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Layout } from "../components/Layout";
+import { MachineTypeBadge } from "../components/MachineTypeBadge";
 import { Modal } from "../components/Modal";
+import { Pagination } from "../components/Pagination";
 import {
   Table,
   TableBody,
@@ -19,6 +21,8 @@ import type { CreateMachineRequest, Machine } from "../types/machine";
 import type { Site } from "../types/site";
 
 const machineTypes = ["Ekskavatör", "Vinç", "Kamyon", "Beton Pompası", "Silindir", "Diğer"];
+
+const PAGE_SIZE = 10;
 
 function emptyForm(defaultSiteId: number): CreateMachineRequest {
   return {
@@ -52,6 +56,7 @@ export function MachinesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<CreateMachineRequest>(emptyForm(0));
@@ -136,6 +141,16 @@ export function MachinesPage() {
     return sorted;
   }, [machines, siteNameById, searchTerm, sortKey, sortDirection]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortKey, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleMachines.length / PAGE_SIZE));
+  const paginatedMachines = visibleMachines.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
   return (
     <Layout
       title="FieldOps — Makine Yönetimi"
@@ -196,14 +211,16 @@ export function MachinesPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {visibleMachines.map((machine) => (
+              {paginatedMachines.map((machine) => (
                 <TableRow
                   key={machine.id}
                   onClick={() => navigate(`/machines/${machine.id}`)}
                   className="cursor-pointer"
                 >
                   <TableCell className="font-medium text-white">{machine.name}</TableCell>
-                  <TableCell>{machine.type}</TableCell>
+                  <TableCell>
+                    <MachineTypeBadge type={machine.type} />
+                  </TableCell>
                   <TableCell>{siteNameById.get(machine.siteId) ?? "—"}</TableCell>
                   <TableCell>
                     <Badge>{machine.status}</Badge>
@@ -213,6 +230,11 @@ export function MachinesPage() {
             </TableBody>
           </Table>
         )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </Card>
 
       {isModalOpen && (
