@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:16
+    container_name: fieldops-db
+    environment:
+      POSTGRES_USER: fieldops
+      POSTGRES_PASSWORD: fieldops123
+      POSTGRES_DB: fieldops_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - fieldops_pgdata:/var/lib/postgresql/data
+volumes:
+  fieldops_pgdata:

@@ -1,0 +1,15 @@
+## .NET
+bin/
+obj/
+*.user
+
+## IDE
+.vs/
+.idea/
+*.suo
+
+## OS
+.DS_Store
+
+## Claude Code (local-only settings)
+.claude/settings.local.json
