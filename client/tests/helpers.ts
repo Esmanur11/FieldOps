@@ -3,7 +3,7 @@ import { execSync } from "node:child_process";
 
 export const API_BASE_URL = "http://localhost:5050/api";
 export const ADMIN_USERNAME = "admin";
-export const ADMIN_PASSWORD = "SifreniSecTemel123!";
+export const ADMIN_PASSWORD = "Fieldops2026";
 
 export async function loginViaUi(page: Page): Promise<void> {
   await page.goto("/login");
@@ -55,6 +55,20 @@ export async function apiGetFirstSite(
 export function setReorderThreshold(siteId: number, materialId: number, threshold: number): void {
   execSync(
     `docker exec fieldops-db psql -U fieldops -d fieldops_db -c "UPDATE material_stocks SET reorder_threshold = ${threshold} WHERE site_id = ${siteId} AND material_id = ${materialId};"`,
+  );
+}
+
+// No DELETE endpoint exists for users/personnel; test-only cleanup goes straight to the DB,
+// mirroring setReorderThreshold above. Delete users before personnel (users.personnel_id FK).
+export function cleanupTestUser(username: string): void {
+  execSync(
+    `docker exec fieldops-db psql -U fieldops -d fieldops_db -c "DELETE FROM users WHERE username = '${username}';"`,
+  );
+}
+
+export function cleanupTestPersonnel(personnelId: number): void {
+  execSync(
+    `docker exec fieldops-db psql -U fieldops -d fieldops_db -c "DELETE FROM personnel WHERE id = ${personnelId};"`,
   );
 }
 

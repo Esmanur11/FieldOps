@@ -4,11 +4,27 @@ import {
   apiCreateUser,
   apiGetFirstSite,
   apiLogin,
+  cleanupTestPersonnel,
+  cleanupTestUser,
   loginAsViaUi,
   loginViaUi,
 } from "./helpers";
 
 test.describe("User management module", () => {
+  let createdUsernames: string[] = [];
+  let createdPersonnelIds: number[] = [];
+
+  test.afterEach(() => {
+    for (const username of createdUsernames) {
+      cleanupTestUser(username);
+    }
+    for (const id of createdPersonnelIds) {
+      cleanupTestPersonnel(id);
+    }
+    createdUsernames = [];
+    createdPersonnelIds = [];
+  });
+
   test("admin, Kullanıcılar menüsünü görür ve sayfaya erişebilir", async ({ page }) => {
     await loginViaUi(page);
 
@@ -27,9 +43,11 @@ test.describe("User management module", () => {
     const token = await apiLogin(request);
     const site = await apiGetFirstSite(request, token);
     const personnel = await apiCreatePersonnel(request, token, site.id, `Test Personel ${Date.now()}`);
+    createdPersonnelIds.push(personnel.id);
     const username = `test.user.${Date.now()}`;
     const password = "GucluBirSifre123!";
     await apiCreateUser(request, token, username, password, "User", personnel.id);
+    createdUsernames.push(username);
 
     await loginAsViaUi(page, username, password);
 
@@ -44,7 +62,8 @@ test.describe("User management module", () => {
     const token = await apiLogin(request);
     const site = await apiGetFirstSite(request, token);
     const fullName = `Yeni Personel ${Date.now()}`;
-    await apiCreatePersonnel(request, token, site.id, fullName);
+    const personnel = await apiCreatePersonnel(request, token, site.id, fullName);
+    createdPersonnelIds.push(personnel.id);
 
     await loginViaUi(page);
     await page.goto("/users");
@@ -67,6 +86,7 @@ test.describe("User management module", () => {
     const generatedUsername = await usernameInput.inputValue();
     const generatedPassword = await passwordInput.inputValue();
     expect(generatedPassword.length).toBeGreaterThanOrEqual(12);
+    createdUsernames.push(generatedUsername);
 
     await page.getByRole("button", { name: "Oluştur", exact: true }).click();
 
@@ -85,7 +105,8 @@ test.describe("User management module", () => {
     const token = await apiLogin(request);
     const site = await apiGetFirstSite(request, token);
     const fullName = `Doğrulama Personeli ${Date.now()}`;
-    await apiCreatePersonnel(request, token, site.id, fullName);
+    const personnel = await apiCreatePersonnel(request, token, site.id, fullName);
+    createdPersonnelIds.push(personnel.id);
 
     await loginViaUi(page);
     await page.goto("/users");
