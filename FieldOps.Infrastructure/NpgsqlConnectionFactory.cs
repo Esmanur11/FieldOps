@@ -12,6 +12,7 @@ public class NpgsqlConnectionFactory : IDbConnectionFactory
     static NpgsqlConnectionFactory()
     {
         SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
+        SqlMapper.AddTypeHandler(new TimeOnlyTypeHandler());
     }
 
     public NpgsqlConnectionFactory(IConfiguration configuration)

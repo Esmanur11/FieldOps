@@ -6,6 +6,7 @@ using FieldOps.Application.Machines;
 using FieldOps.Application.Maintenance;
 using FieldOps.Application.Materials;
 using FieldOps.Application.Personnel;
+using FieldOps.Application.Shifts;
 using FieldOps.Application.Sites;
 using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Interfaces;
@@ -80,6 +81,13 @@ builder.Services.AddScoped<AuditFindingService>();
 builder.Services.AddScoped<IValidator<CreateAuditRequest>, CreateAuditRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateAuditFindingRequest>, CreateAuditFindingRequestValidator>();
 builder.Services.AddScoped<IValidator<UpdateAuditFindingRequest>, UpdateAuditFindingRequestValidator>();
+
+builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
+builder.Services.AddScoped<IShiftAssignmentRepository, ShiftAssignmentRepository>();
+builder.Services.AddScoped<ShiftService>();
+builder.Services.AddScoped<ShiftAssignmentService>();
+builder.Services.AddScoped<IValidator<CreateShiftRequest>, CreateShiftRequestValidator>();
+builder.Services.AddScoped<IValidator<CreateShiftAssignmentRequest>, CreateShiftAssignmentRequestValidator>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();

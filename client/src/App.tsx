@@ -9,6 +9,7 @@ import { MachinesPage } from "./pages/MachinesPage";
 import { MaterialsPage } from "./pages/MaterialsPage";
 import { PersonnelDetailPage } from "./pages/PersonnelDetailPage";
 import { PersonnelPage } from "./pages/PersonnelPage";
+import { ShiftsPage } from "./pages/ShiftsPage";
 import { SiteDetailPage } from "./pages/SiteDetailPage";
 import { SitesPage } from "./pages/SitesPage";
 import { WorkOrderDetailPage } from "./pages/WorkOrderDetailPage";
@@ -32,6 +33,7 @@ function App() {
           <Route path="/audits/:id" element={<AuditDetailPage />} />
           <Route path="/work-orders" element={<WorkOrdersPage />} />
           <Route path="/work-orders/:id" element={<WorkOrderDetailPage />} />
+          <Route path="/shifts" element={<ShiftsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

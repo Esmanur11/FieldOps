@@ -22,6 +22,12 @@ import type {
   MaterialTransaction,
 } from "../types/material";
 import type { CreatePersonnelRequest, Personnel } from "../types/personnel";
+import type {
+  CreateShiftAssignmentRequest,
+  CreateShiftRequest,
+  Shift,
+  ShiftAssignment,
+} from "../types/shift";
 import type { CreateSiteRequest, Site } from "../types/site";
 import type { CreateWorkOrderRequest, WorkOrder } from "../types/workOrder";
 import { clearAuth, getToken, type AuthUser } from "./auth";
@@ -509,5 +515,82 @@ export async function assignWorkOrder(id: number, assignedTo: number | null): Pr
 
   if (!response.ok) {
     throw new Error(`İş emri atanamadı (HTTP ${response.status})`);
+  }
+}
+
+export async function getShifts(siteId?: number): Promise<Shift[]> {
+  const path = siteId !== undefined ? `/shifts?siteId=${siteId}` : "/shifts";
+  const response = await apiFetch(path);
+  if (!response.ok) {
+    throw new Error(`Vardiyalar alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createShift(request: CreateShiftRequest): Promise<Shift> {
+  const response = await apiFetch("/shifts", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Vardiya oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Vardiya oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function getShiftAssignments(
+  filters: { personnelId?: number; shiftId?: number; siteId?: number; date?: string } = {},
+): Promise<ShiftAssignment[]> {
+  const params = new URLSearchParams();
+  if (filters.personnelId !== undefined) params.set("personnelId", String(filters.personnelId));
+  if (filters.shiftId !== undefined) params.set("shiftId", String(filters.shiftId));
+  if (filters.siteId !== undefined) params.set("siteId", String(filters.siteId));
+  if (filters.date !== undefined) params.set("date", filters.date);
+  const query = params.toString();
+  const response = await apiFetch(`/shift-assignments${query ? `?${query}` : ""}`);
+  if (!response.ok) {
+    throw new Error(`Vardiya atamaları alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createShiftAssignment(
+  request: CreateShiftAssignmentRequest,
+): Promise<{ id: number }> {
+  const response = await apiFetch("/shift-assignments", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Atama oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Atama oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function checkInShiftAssignment(id: number): Promise<void> {
+  const response = await apiFetch(`/shift-assignments/${id}/checkin`, { method: "PUT" });
+  if (!response.ok) {
+    throw new Error(`Check-in yapılamadı (HTTP ${response.status})`);
+  }
+}
+
+export async function checkOutShiftAssignment(id: number): Promise<void> {
+  const response = await apiFetch(`/shift-assignments/${id}/checkout`, { method: "PUT" });
+  if (!response.ok) {
+    throw new Error(`Check-out yapılamadı (HTTP ${response.status})`);
   }
 }

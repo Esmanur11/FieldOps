@@ -11,6 +11,7 @@ import {
   getMaterials,
   getMaterialStocks,
   getPersonnel,
+  getShiftAssignments,
   getSites,
   getWorkOrders,
 } from "../lib/api";
@@ -19,8 +20,11 @@ import type { Machine } from "../types/machine";
 import type { MaintenancePrediction } from "../types/maintenance";
 import type { Material, MaterialStock } from "../types/material";
 import type { Personnel } from "../types/personnel";
+import type { ShiftAssignment } from "../types/shift";
 import type { Site } from "../types/site";
 import type { WorkOrder } from "../types/workOrder";
+
+const todayDateString = new Date().toISOString().slice(0, 10);
 
 const sourceTypeLabels: Record<string, string> = {
   audit_finding: "Denetim",
@@ -60,6 +64,7 @@ export function DashboardPage() {
   const [maintenancePredictions, setMaintenancePredictions] = useState<MaintenancePrediction[]>([]);
   const [auditFindings, setAuditFindings] = useState<AuditFinding[]>([]);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const [todayShiftAssignments, setTodayShiftAssignments] = useState<ShiftAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -73,6 +78,7 @@ export function DashboardPage() {
       getMaintenancePredictions(),
       getAuditFindings(),
       getWorkOrders(),
+      getShiftAssignments({ date: todayDateString }),
     ])
       .then(
         ([
@@ -84,6 +90,7 @@ export function DashboardPage() {
           predictionsData,
           auditFindingsData,
           workOrdersData,
+          shiftAssignmentsData,
         ]) => {
           setSites(sitesData);
           setPersonnel(personnelData);
@@ -93,6 +100,7 @@ export function DashboardPage() {
           setMaintenancePredictions(predictionsData);
           setAuditFindings(auditFindingsData);
           setWorkOrders(workOrdersData);
+          setTodayShiftAssignments(shiftAssignmentsData);
         },
       )
       .catch((err) =>
@@ -123,12 +131,13 @@ export function DashboardPage() {
     .filter((entry) => entry.count > 0)
     .map((entry) => `${entry.label}: ${entry.count}`)
     .join(" · ");
+  const checkedInTodayCount = todayShiftAssignments.filter((a) => a.checkIn !== null).length;
 
   return (
     <Layout title="FieldOps — Genel Bakış">
       {loadError && <p className="mb-6 text-sm text-red-400">{loadError}</p>}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-9">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-10">
         <KpiCard label="Toplam Şantiye" value={isLoading ? "…" : String(totalSites)} />
         <KpiCard label="Aktif Şantiye" value={isLoading ? "…" : String(activeSites)} />
         <KpiCard label="Personnel" value={isLoading ? "…" : String(totalPersonnel)} />
@@ -149,6 +158,10 @@ export function DashboardPage() {
           label="Açık İş Emirleri"
           value={isLoading ? "…" : String(openWorkOrders.length)}
           highlight={!isLoading && openWorkOrderBreakdown ? openWorkOrderBreakdown : undefined}
+        />
+        <KpiCard
+          label="Bugün Check-in Yapan Personel"
+          value={isLoading ? "…" : String(checkedInTodayCount)}
         />
       </div>
 

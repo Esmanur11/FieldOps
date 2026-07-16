@@ -165,3 +165,30 @@ export async function apiCreateWorkOrder(
   });
   return response.json();
 }
+
+export async function apiCreateShift(
+  request: APIRequestContext,
+  token: string,
+  siteId: number,
+  name: string,
+): Promise<{ id: number; name: string }> {
+  const response = await request.post(`${API_BASE_URL}/shifts`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { siteId, name, startTime: "08:00", endTime: "16:00" },
+  });
+  return response.json();
+}
+
+export async function apiCreateShiftAssignment(
+  request: APIRequestContext,
+  token: string,
+  shiftId: number,
+  personnelId: number,
+  workDate: string,
+): Promise<{ id: number }> {
+  const response = await request.post(`${API_BASE_URL}/shift-assignments`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { shiftId, personnelId, workDate },
+  });
+  return response.json();
+}
