@@ -21,7 +21,7 @@ const navItems: NavItem[] = [
   { label: "Personnel", icon: Users, to: "/personnel" },
   { label: "Machines", icon: Truck, to: "/machines" },
   { label: "Materials", icon: Package, to: "/materials" },
-  { label: "Audits", icon: ClipboardCheck },
+  { label: "Audits", icon: ClipboardCheck, to: "/audits" },
 ];
 
 export function Sidebar() {

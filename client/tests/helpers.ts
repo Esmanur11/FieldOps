@@ -124,3 +124,31 @@ export async function apiCreateUsageLog(
     data: { machineId, logDate, hoursUsed, fuelConsumed: null, operatorId },
   });
 }
+
+export async function apiCreateAudit(
+  request: APIRequestContext,
+  token: string,
+  siteId: number,
+  inspectorId: number,
+  type: string,
+): Promise<{ id: number }> {
+  const response = await request.post(`${API_BASE_URL}/audits`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { siteId, inspectorId, auditDate: formatDate(new Date()), type, status: "completed" },
+  });
+  return response.json();
+}
+
+export async function apiCreateAuditFinding(
+  request: APIRequestContext,
+  token: string,
+  auditId: number,
+  severity: string,
+  description: string,
+): Promise<{ id: number }> {
+  const response = await request.post(`${API_BASE_URL}/audit-findings`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { auditId, category: null, severity, description, correctiveAction: null, dueDate: null },
+  });
+  return response.json();
+}

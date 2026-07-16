@@ -1,5 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AuditDetailPage } from "./pages/AuditDetailPage";
+import { AuditsPage } from "./pages/AuditsPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MachineDetailPage } from "./pages/MachineDetailPage";
@@ -24,6 +26,8 @@ function App() {
           <Route path="/machines" element={<MachinesPage />} />
           <Route path="/machines/:id" element={<MachineDetailPage />} />
           <Route path="/materials" element={<MaterialsPage />} />
+          <Route path="/audits" element={<AuditsPage />} />
+          <Route path="/audits/:id" element={<AuditDetailPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

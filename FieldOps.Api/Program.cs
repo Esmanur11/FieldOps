@@ -1,5 +1,6 @@
 using System.Text;
 using FieldOps.Api.Services;
+using FieldOps.Application.Audits;
 using FieldOps.Application.Auth;
 using FieldOps.Application.Machines;
 using FieldOps.Application.Maintenance;
@@ -64,6 +65,14 @@ builder.Services.AddScoped<PredictiveMaintenanceService>();
 builder.Services.AddScoped<IValidator<CreateMachineUsageLogRequest>, CreateMachineUsageLogRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateMaintenanceRecordRequest>, CreateMaintenanceRecordRequestValidator>();
 builder.Services.AddHostedService<MaintenancePredictionBackgroundService>();
+
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
+builder.Services.AddScoped<IAuditFindingRepository, AuditFindingRepository>();
+builder.Services.AddScoped<AuditService>();
+builder.Services.AddScoped<AuditFindingService>();
+builder.Services.AddScoped<IValidator<CreateAuditRequest>, CreateAuditRequestValidator>();
+builder.Services.AddScoped<IValidator<CreateAuditFindingRequest>, CreateAuditFindingRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdateAuditFindingRequest>, UpdateAuditFindingRequestValidator>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();

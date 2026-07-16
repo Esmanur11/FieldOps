@@ -5,6 +5,7 @@ import { MachineTypeChart } from "../components/MachineTypeChart";
 import { PersonnelPerSiteChart } from "../components/PersonnelPerSiteChart";
 import { SitesMap } from "../components/SitesMap";
 import {
+  getAuditFindings,
   getMachines,
   getMaintenancePredictions,
   getMaterials,
@@ -12,6 +13,7 @@ import {
   getPersonnel,
   getSites,
 } from "../lib/api";
+import type { AuditFinding } from "../types/audit";
 import type { Machine } from "../types/machine";
 import type { MaintenancePrediction } from "../types/maintenance";
 import type { Material, MaterialStock } from "../types/material";
@@ -22,9 +24,10 @@ interface KpiCardProps {
   label: string;
   value: string;
   comingSoon?: boolean;
+  highlight?: string;
 }
 
-function KpiCard({ label, value, comingSoon = false }: KpiCardProps) {
+function KpiCard({ label, value, comingSoon = false, highlight }: KpiCardProps) {
   return (
     <Card className={`p-6 ${comingSoon ? "opacity-50" : ""}`}>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
@@ -35,6 +38,7 @@ function KpiCard({ label, value, comingSoon = false }: KpiCardProps) {
       >
         {value}
       </p>
+      {highlight && <p className="mt-1 text-xs font-medium text-red-400">{highlight}</p>}
     </Card>
   );
 }
@@ -46,6 +50,7 @@ export function DashboardPage() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [materialStocks, setMaterialStocks] = useState<MaterialStock[]>([]);
   const [maintenancePredictions, setMaintenancePredictions] = useState<MaintenancePrediction[]>([]);
+  const [auditFindings, setAuditFindings] = useState<AuditFinding[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -57,15 +62,27 @@ export function DashboardPage() {
       getMaterials(),
       getMaterialStocks(),
       getMaintenancePredictions(),
+      getAuditFindings(),
     ])
-      .then(([sitesData, personnelData, machinesData, materialsData, materialStocksData, predictionsData]) => {
-        setSites(sitesData);
-        setPersonnel(personnelData);
-        setMachines(machinesData);
-        setMaterials(materialsData);
-        setMaterialStocks(materialStocksData);
-        setMaintenancePredictions(predictionsData);
-      })
+      .then(
+        ([
+          sitesData,
+          personnelData,
+          machinesData,
+          materialsData,
+          materialStocksData,
+          predictionsData,
+          auditFindingsData,
+        ]) => {
+          setSites(sitesData);
+          setPersonnel(personnelData);
+          setMachines(machinesData);
+          setMaterials(materialsData);
+          setMaterialStocks(materialStocksData);
+          setMaintenancePredictions(predictionsData);
+          setAuditFindings(auditFindingsData);
+        },
+      )
       .catch((err) =>
         setLoadError(err instanceof Error ? err.message : "Bilinmeyen bir hata oluştu"),
       )
@@ -81,6 +98,10 @@ export function DashboardPage() {
   const highRiskMachineCount = maintenancePredictions.filter(
     (prediction) => prediction.riskScore >= 80,
   ).length;
+  const openFindings = auditFindings.filter((finding) => finding.status === "open");
+  const criticalOpenFindingCount = openFindings.filter(
+    (finding) => finding.severity === "critical",
+  ).length;
 
   return (
     <Layout title="FieldOps — Genel Bakış">
@@ -94,7 +115,15 @@ export function DashboardPage() {
         <KpiCard label="Materials" value={isLoading ? "…" : String(totalMaterials)} />
         <KpiCard label="Düşük Stoktaki Malzeme" value={isLoading ? "…" : String(lowStockCount)} />
         <KpiCard label="Yüksek Riskli Makineler" value={isLoading ? "…" : String(highRiskMachineCount)} />
-        <KpiCard label="Audits" value="Yakında" comingSoon />
+        <KpiCard
+          label="Açık Denetim Bulguları"
+          value={isLoading ? "…" : String(openFindings.length)}
+          highlight={
+            !isLoading && criticalOpenFindingCount > 0
+              ? `${criticalOpenFindingCount} kritik`
+              : undefined
+          }
+        />
       </div>
 
       {!isLoading && !loadError && (

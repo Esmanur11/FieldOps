@@ -1,3 +1,11 @@
+import type {
+  Audit,
+  AuditDetail,
+  AuditFinding,
+  CreateAuditFindingRequest,
+  CreateAuditRequest,
+  UpdateAuditFindingRequest,
+} from "../types/audit";
 import type { CreateMachineRequest, Machine } from "../types/machine";
 import type {
   CreateMachineUsageLogRequest,
@@ -336,4 +344,104 @@ export async function recalculateMaintenancePrediction(
   }
 
   return response.json();
+}
+
+export async function getAudits(siteId?: number): Promise<Audit[]> {
+  const path = siteId !== undefined ? `/audits?siteId=${siteId}` : "/audits";
+  const response = await apiFetch(path);
+  if (!response.ok) {
+    throw new Error(`Denetimler alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getAuditById(id: number): Promise<AuditDetail> {
+  const response = await apiFetch(`/audits/${id}`);
+  if (response.status === 404) {
+    throw new Error("Denetim bulunamadı");
+  }
+  if (!response.ok) {
+    throw new Error(`Denetim alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createAudit(request: CreateAuditRequest): Promise<AuditDetail> {
+  const response = await apiFetch("/audits", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Denetim oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Denetim oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function getAuditFindings(auditId?: number): Promise<AuditFinding[]> {
+  const path = auditId !== undefined ? `/audit-findings?auditId=${auditId}` : "/audit-findings";
+  const response = await apiFetch(path);
+  if (!response.ok) {
+    throw new Error(`Bulgular alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createAuditFinding(
+  request: CreateAuditFindingRequest,
+): Promise<{ id: number }> {
+  const payload = {
+    ...request,
+    category: request.category || null,
+    correctiveAction: request.correctiveAction || null,
+    dueDate: request.dueDate || null,
+  };
+
+  const response = await apiFetch("/audit-findings", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Bulgu oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Bulgu oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function updateAuditFinding(
+  id: number,
+  request: UpdateAuditFindingRequest,
+): Promise<void> {
+  const payload = {
+    ...request,
+    category: request.category || null,
+    correctiveAction: request.correctiveAction || null,
+    dueDate: request.dueDate || null,
+  };
+
+  const response = await apiFetch(`/audit-findings/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Bulgu güncellenemedi (HTTP ${response.status})`;
+    throw new Error(message || `Bulgu güncellenemedi (HTTP ${response.status})`);
+  }
 }
