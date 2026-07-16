@@ -23,6 +23,13 @@ public class MaintenancePredictionsController : ControllerBase
         return Ok(predictions);
     }
 
+    [HttpGet("top-risk")]
+    public async Task<ActionResult<IEnumerable<TopRiskMachineDto>>> GetTopRisk([FromQuery] int limit = 5)
+    {
+        var machines = await _service.GetTopRiskAsync(limit);
+        return Ok(machines);
+    }
+
     [HttpPost("recalculate")]
     public async Task<IActionResult> Recalculate([FromQuery] int? machineId)
     {

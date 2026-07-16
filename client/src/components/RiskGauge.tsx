@@ -36,7 +36,10 @@ export function RiskGauge({ riskScore, size = 96 }: RiskGaugeProps) {
           strokeLinecap="round"
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-lg font-semibold text-white">
+      <span
+        className="absolute inset-0 flex items-center justify-center font-semibold text-white"
+        style={{ fontSize: size * 0.1875 }}
+      >
         {Math.round(clamped)}
       </span>
     </div>

@@ -42,4 +42,26 @@ public class MaintenancePredictionRepository : IMaintenancePredictionRepository
         using var connection = _connectionFactory.CreateConnection();
         return await connection.ExecuteScalarAsync<int>(sql, prediction);
     }
+
+    public async Task<IEnumerable<TopRiskMachine>> GetTopRiskAsync(int limit)
+    {
+        const string sql = """
+            SELECT "MachineId", "MachineName", "SiteId", "SiteName", "RiskScore", "PredictedDate"
+            FROM (
+                SELECT DISTINCT ON (mp.machine_id)
+                    mp.machine_id AS "MachineId", m.name AS "MachineName",
+                    m.site_id AS "SiteId", s.name AS "SiteName",
+                    mp.risk_score AS "RiskScore", mp.predicted_date AS "PredictedDate"
+                FROM maintenance_predictions mp
+                JOIN machines m ON m.id = mp.machine_id
+                JOIN sites s ON s.id = m.site_id
+                ORDER BY mp.machine_id, mp.generated_at DESC
+            ) latest
+            ORDER BY "RiskScore" DESC
+            LIMIT @Limit
+            """;
+
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QueryAsync<TopRiskMachine>(sql, new { Limit = limit });
+    }
 }

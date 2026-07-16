@@ -13,6 +13,7 @@ import type {
   MachineUsageLog,
   MaintenancePrediction,
   MaintenanceRecord,
+  TopRiskMachine,
 } from "../types/maintenance";
 import type {
   CreateMaterialRequest,
@@ -337,6 +338,14 @@ export async function getMaintenancePredictions(machineId?: number): Promise<Mai
   const response = await apiFetch(path);
   if (!response.ok) {
     throw new Error(`Bakım tahmini alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getTopRiskMachines(limit = 5): Promise<TopRiskMachine[]> {
+  const response = await apiFetch(`/maintenance-predictions/top-risk?limit=${limit}`);
+  if (!response.ok) {
+    throw new Error(`Riskli makineler alınamadı (HTTP ${response.status})`);
   }
   return response.json();
 }

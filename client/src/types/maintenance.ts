@@ -42,3 +42,12 @@ export interface MaintenancePrediction {
   basis: string | null;
   generatedAt: string;
 }
+
+export interface TopRiskMachine {
+  machineId: number;
+  machineName: string;
+  siteId: number;
+  siteName: string;
+  riskScore: number;
+  predictedDate: string;
+}

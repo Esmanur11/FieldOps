@@ -115,6 +115,20 @@ public class PredictiveMaintenanceService
         return predictions.Select(ToDto);
     }
 
+    public async Task<IEnumerable<TopRiskMachineDto>> GetTopRiskAsync(int limit)
+    {
+        var machines = await _predictionRepository.GetTopRiskAsync(limit);
+        return machines.Select(m => new TopRiskMachineDto
+        {
+            MachineId = m.MachineId,
+            MachineName = m.MachineName,
+            SiteId = m.SiteId,
+            SiteName = m.SiteName,
+            RiskScore = m.RiskScore,
+            PredictedDate = m.PredictedDate
+        });
+    }
+
     // With 2+ maintenance records, averages the usage-hours span between each consecutive pair
     // (how many hours of use a maintenance interval typically covers). With 0 or 1 records there's
     // no pair to average, so the single observed span since the baseline anchor stands in for it.

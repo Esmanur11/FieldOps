@@ -9,4 +9,8 @@ public interface IMaintenancePredictionRepository
     Task<IEnumerable<MaintenancePrediction>> GetLatestAsync(int? machineId);
 
     Task<int> AddAsync(MaintenancePrediction prediction);
+
+    // Each machine's latest prediction (same DISTINCT ON as GetLatestAsync), re-ordered by
+    // risk_score descending and capped, for the dashboard's risk radar widget.
+    Task<IEnumerable<TopRiskMachine>> GetTopRiskAsync(int limit);
 }
