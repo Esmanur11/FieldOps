@@ -1,6 +1,8 @@
 using System.Text;
+using FieldOps.Api.Services;
 using FieldOps.Application.Auth;
 using FieldOps.Application.Machines;
+using FieldOps.Application.Maintenance;
 using FieldOps.Application.Materials;
 using FieldOps.Application.Personnel;
 using FieldOps.Application.Sites;
@@ -52,6 +54,16 @@ builder.Services.AddScoped<MaterialStockService>();
 builder.Services.AddScoped<MaterialTransactionService>();
 builder.Services.AddScoped<IValidator<CreateMaterialRequest>, CreateMaterialRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateMaterialTransactionRequest>, CreateMaterialTransactionRequestValidator>();
+
+builder.Services.AddScoped<IMachineUsageLogRepository, MachineUsageLogRepository>();
+builder.Services.AddScoped<IMaintenanceRecordRepository, MaintenanceRecordRepository>();
+builder.Services.AddScoped<IMaintenancePredictionRepository, MaintenancePredictionRepository>();
+builder.Services.AddScoped<MachineUsageLogService>();
+builder.Services.AddScoped<MaintenanceRecordService>();
+builder.Services.AddScoped<PredictiveMaintenanceService>();
+builder.Services.AddScoped<IValidator<CreateMachineUsageLogRequest>, CreateMachineUsageLogRequestValidator>();
+builder.Services.AddScoped<IValidator<CreateMaintenanceRecordRequest>, CreateMaintenanceRecordRequestValidator>();
+builder.Services.AddHostedService<MaintenancePredictionBackgroundService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();

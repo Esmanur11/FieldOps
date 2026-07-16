@@ -4,8 +4,16 @@ import { Layout } from "../components/Layout";
 import { MachineTypeChart } from "../components/MachineTypeChart";
 import { PersonnelPerSiteChart } from "../components/PersonnelPerSiteChart";
 import { SitesMap } from "../components/SitesMap";
-import { getMachines, getMaterials, getMaterialStocks, getPersonnel, getSites } from "../lib/api";
+import {
+  getMachines,
+  getMaintenancePredictions,
+  getMaterials,
+  getMaterialStocks,
+  getPersonnel,
+  getSites,
+} from "../lib/api";
 import type { Machine } from "../types/machine";
+import type { MaintenancePrediction } from "../types/maintenance";
 import type { Material, MaterialStock } from "../types/material";
 import type { Personnel } from "../types/personnel";
 import type { Site } from "../types/site";
@@ -37,17 +45,26 @@ export function DashboardPage() {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [materialStocks, setMaterialStocks] = useState<MaterialStock[]>([]);
+  const [maintenancePredictions, setMaintenancePredictions] = useState<MaintenancePrediction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getSites(), getPersonnel(), getMachines(), getMaterials(), getMaterialStocks()])
-      .then(([sitesData, personnelData, machinesData, materialsData, materialStocksData]) => {
+    Promise.all([
+      getSites(),
+      getPersonnel(),
+      getMachines(),
+      getMaterials(),
+      getMaterialStocks(),
+      getMaintenancePredictions(),
+    ])
+      .then(([sitesData, personnelData, machinesData, materialsData, materialStocksData, predictionsData]) => {
         setSites(sitesData);
         setPersonnel(personnelData);
         setMachines(machinesData);
         setMaterials(materialsData);
         setMaterialStocks(materialStocksData);
+        setMaintenancePredictions(predictionsData);
       })
       .catch((err) =>
         setLoadError(err instanceof Error ? err.message : "Bilinmeyen bir hata oluştu"),
@@ -61,18 +78,22 @@ export function DashboardPage() {
   const totalMachines = machines.length;
   const totalMaterials = materials.length;
   const lowStockCount = materialStocks.filter((stock) => stock.isLowStock).length;
+  const highRiskMachineCount = maintenancePredictions.filter(
+    (prediction) => prediction.riskScore >= 80,
+  ).length;
 
   return (
     <Layout title="FieldOps — Genel Bakış">
       {loadError && <p className="mb-6 text-sm text-red-400">{loadError}</p>}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-8">
         <KpiCard label="Toplam Şantiye" value={isLoading ? "…" : String(totalSites)} />
         <KpiCard label="Aktif Şantiye" value={isLoading ? "…" : String(activeSites)} />
         <KpiCard label="Personnel" value={isLoading ? "…" : String(totalPersonnel)} />
         <KpiCard label="Machines" value={isLoading ? "…" : String(totalMachines)} />
         <KpiCard label="Materials" value={isLoading ? "…" : String(totalMaterials)} />
         <KpiCard label="Düşük Stoktaki Malzeme" value={isLoading ? "…" : String(lowStockCount)} />
+        <KpiCard label="Yüksek Riskli Makineler" value={isLoading ? "…" : String(highRiskMachineCount)} />
         <KpiCard label="Audits" value="Yakında" comingSoon />
       </div>
 

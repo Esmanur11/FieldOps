@@ -1,5 +1,12 @@
 import type { CreateMachineRequest, Machine } from "../types/machine";
 import type {
+  CreateMachineUsageLogRequest,
+  CreateMaintenanceRecordRequest,
+  MachineUsageLog,
+  MaintenancePrediction,
+  MaintenanceRecord,
+} from "../types/maintenance";
+import type {
   CreateMaterialRequest,
   CreateMaterialTransactionRequest,
   Material,
@@ -244,5 +251,89 @@ export async function getMaterialTransactions(
   if (!response.ok) {
     throw new Error(`Stok hareketleri alınamadı (HTTP ${response.status})`);
   }
+  return response.json();
+}
+
+export async function getMachineUsageLogs(machineId?: number): Promise<MachineUsageLog[]> {
+  const path = machineId !== undefined ? `/machine-usage-logs?machineId=${machineId}` : "/machine-usage-logs";
+  const response = await apiFetch(path);
+  if (!response.ok) {
+    throw new Error(`Kullanım kayıtları alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createMachineUsageLog(
+  request: CreateMachineUsageLogRequest,
+): Promise<MachineUsageLog> {
+  const response = await apiFetch("/machine-usage-logs", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Kullanım kaydı oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Kullanım kaydı oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function getMaintenanceRecords(machineId?: number): Promise<MaintenanceRecord[]> {
+  const path = machineId !== undefined ? `/maintenance-records?machineId=${machineId}` : "/maintenance-records";
+  const response = await apiFetch(path);
+  if (!response.ok) {
+    throw new Error(`Bakım kayıtları alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createMaintenanceRecord(
+  request: CreateMaintenanceRecordRequest,
+): Promise<MaintenanceRecord> {
+  const response = await apiFetch("/maintenance-records", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Bakım kaydı oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Bakım kaydı oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function getMaintenancePredictions(machineId?: number): Promise<MaintenancePrediction[]> {
+  const path =
+    machineId !== undefined
+      ? `/maintenance-predictions?machineId=${machineId}`
+      : "/maintenance-predictions";
+  const response = await apiFetch(path);
+  if (!response.ok) {
+    throw new Error(`Bakım tahmini alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function recalculateMaintenancePrediction(
+  machineId: number,
+): Promise<MaintenancePrediction> {
+  const response = await apiFetch(`/maintenance-predictions/recalculate?machineId=${machineId}`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Bakım tahmini hesaplanamadı (HTTP ${response.status})`);
+  }
+
   return response.json();
 }
