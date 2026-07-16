@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FieldOps.Domain.Entities;
 using FieldOps.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -17,19 +16,6 @@ public class AuthService
     {
         _userRepository = userRepository;
         _configuration = configuration;
-    }
-
-    public async Task<int> RegisterAsync(RegisterRequest request)
-    {
-        var user = new User
-        {
-            Username = request.Username,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = request.Role,
-            PersonnelId = request.PersonnelId
-        };
-
-        return await _userRepository.AddAsync(user);
     }
 
     public async Task<LoginResponse?> LoginAsync(LoginRequest request)

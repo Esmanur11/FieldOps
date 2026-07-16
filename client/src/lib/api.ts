@@ -31,6 +31,7 @@ import type {
   ShiftAssignment,
 } from "../types/shift";
 import type { CreateSiteRequest, Site } from "../types/site";
+import type { CreateUserRequest, User } from "../types/user";
 import type { CreateWorkOrderRequest, WorkOrder } from "../types/workOrder";
 import { clearAuth, getToken, type AuthUser } from "./auth";
 
@@ -626,4 +627,38 @@ export async function markAllNotificationsRead(): Promise<void> {
   if (!response.ok) {
     throw new Error(`Bildirimler okundu işaretlenemedi (HTTP ${response.status})`);
   }
+}
+
+export async function getUsers(): Promise<User[]> {
+  const response = await apiFetch("/users");
+  if (!response.ok) {
+    throw new Error(`Kullanıcılar alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getPersonnelWithoutAccount(): Promise<Personnel[]> {
+  const response = await apiFetch("/users/without-account");
+  if (!response.ok) {
+    throw new Error(`Hesapsız personel listesi alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createUser(request: CreateUserRequest): Promise<{ id: number }> {
+  const response = await apiFetch("/users", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Kullanıcı oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Kullanıcı oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
 }

@@ -10,6 +10,7 @@ using FieldOps.Application.Notifications;
 using FieldOps.Application.Personnel;
 using FieldOps.Application.Shifts;
 using FieldOps.Application.Sites;
+using FieldOps.Application.Users;
 using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Interfaces;
 using FieldOps.Infrastructure;
@@ -101,8 +102,10 @@ builder.Services.AddScoped<NotificationService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
 builder.Services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
 
 var jwtSecret = builder.Configuration["Jwt:Secret"]
     ?? throw new InvalidOperationException("Jwt:Secret is not configured.");

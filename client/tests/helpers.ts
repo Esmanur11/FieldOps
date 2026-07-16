@@ -21,6 +21,14 @@ export async function apiLogin(request: APIRequestContext): Promise<string> {
   return body.token as string;
 }
 
+export async function loginAsViaUi(page: Page, username: string, password: string): Promise<void> {
+  await page.goto("/login");
+  await page.getByLabel("Kullanıcı Adı").fill(username);
+  await page.getByLabel("Şifre").fill(password);
+  await page.getByRole("button", { name: "Giriş Yap" }).click();
+  await page.waitForURL("/");
+}
+
 export async function apiCreateMaterial(
   request: APIRequestContext,
   token: string,
@@ -189,6 +197,41 @@ export async function apiCreateShiftAssignment(
   const response = await request.post(`${API_BASE_URL}/shift-assignments`, {
     headers: { Authorization: `Bearer ${token}` },
     data: { shiftId, personnelId, workDate },
+  });
+  return response.json();
+}
+
+export async function apiCreatePersonnel(
+  request: APIRequestContext,
+  token: string,
+  siteId: number,
+  fullName: string,
+): Promise<{ id: number; fullName: string }> {
+  const response = await request.post(`${API_BASE_URL}/personnel`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: {
+      siteId,
+      fullName,
+      role: "İşçi",
+      phone: "5551112233",
+      hireDate: formatDate(new Date()),
+      status: "active",
+    },
+  });
+  return response.json();
+}
+
+export async function apiCreateUser(
+  request: APIRequestContext,
+  token: string,
+  username: string,
+  password: string,
+  role: string,
+  personnelId: number,
+): Promise<{ id: number }> {
+  const response = await request.post(`${API_BASE_URL}/users`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { username, password, role, personnelId },
   });
   return response.json();
 }

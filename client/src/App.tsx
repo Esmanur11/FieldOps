@@ -12,6 +12,7 @@ import { PersonnelPage } from "./pages/PersonnelPage";
 import { ShiftsPage } from "./pages/ShiftsPage";
 import { SiteDetailPage } from "./pages/SiteDetailPage";
 import { SitesPage } from "./pages/SitesPage";
+import { UsersPage } from "./pages/UsersPage";
 import { WorkOrderDetailPage } from "./pages/WorkOrderDetailPage";
 import { WorkOrdersPage } from "./pages/WorkOrdersPage";
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/work-orders" element={<WorkOrdersPage />} />
           <Route path="/work-orders/:id" element={<WorkOrderDetailPage />} />
           <Route path="/shifts" element={<ShiftsPage />} />
+          <Route path="/users" element={<UsersPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

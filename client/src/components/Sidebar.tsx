@@ -6,10 +6,12 @@ import {
   LayoutDashboard,
   Package,
   Truck,
+  UserCog,
   Users,
   type LucideIcon,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { getAuth } from "../lib/auth";
 
 interface NavItem {
   label: string;
@@ -17,7 +19,7 @@ interface NavItem {
   to?: string;
 }
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/" },
   { label: "Sites", icon: Building2, to: "/sites" },
   { label: "Personnel", icon: Users, to: "/personnel" },
@@ -28,7 +30,12 @@ const navItems: NavItem[] = [
   { label: "İş Emirleri", icon: ClipboardList, to: "/work-orders" },
 ];
 
+const adminNavItem: NavItem = { label: "Kullanıcılar", icon: UserCog, to: "/users" };
+
 export function Sidebar() {
+  const auth = getAuth();
+  const navItems = auth?.role === "Admin" ? [...baseNavItems, adminNavItem] : baseNavItems;
+
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-navy-700 bg-navy-900">
       <div className="flex h-16 items-center gap-2 border-b border-navy-700 px-6">
