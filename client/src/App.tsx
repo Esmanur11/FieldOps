@@ -4,6 +4,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MachineDetailPage } from "./pages/MachineDetailPage";
 import { MachinesPage } from "./pages/MachinesPage";
+import { MaterialsPage } from "./pages/MaterialsPage";
 import { PersonnelDetailPage } from "./pages/PersonnelDetailPage";
 import { PersonnelPage } from "./pages/PersonnelPage";
 import { SiteDetailPage } from "./pages/SiteDetailPage";
@@ -22,6 +23,7 @@ function App() {
           <Route path="/personnel/:id" element={<PersonnelDetailPage />} />
           <Route path="/machines" element={<MachinesPage />} />
           <Route path="/machines/:id" element={<MachineDetailPage />} />
+          <Route path="/materials" element={<MaterialsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

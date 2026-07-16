@@ -1,6 +1,7 @@
 using System.Text;
 using FieldOps.Application.Auth;
 using FieldOps.Application.Machines;
+using FieldOps.Application.Materials;
 using FieldOps.Application.Personnel;
 using FieldOps.Application.Sites;
 using FieldOps.Domain.Interfaces;
@@ -42,6 +43,15 @@ builder.Services.AddScoped<IValidator<CreatePersonnelRequest>, CreatePersonnelRe
 builder.Services.AddScoped<IMachineRepository, MachineRepository>();
 builder.Services.AddScoped<MachineService>();
 builder.Services.AddScoped<IValidator<CreateMachineRequest>, CreateMachineRequestValidator>();
+
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<IMaterialStockRepository, MaterialStockRepository>();
+builder.Services.AddScoped<IMaterialTransactionRepository, MaterialTransactionRepository>();
+builder.Services.AddScoped<MaterialService>();
+builder.Services.AddScoped<MaterialStockService>();
+builder.Services.AddScoped<MaterialTransactionService>();
+builder.Services.AddScoped<IValidator<CreateMaterialRequest>, CreateMaterialRequestValidator>();
+builder.Services.AddScoped<IValidator<CreateMaterialTransactionRequest>, CreateMaterialTransactionRequestValidator>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();

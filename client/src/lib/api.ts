@@ -1,4 +1,11 @@
 import type { CreateMachineRequest, Machine } from "../types/machine";
+import type {
+  CreateMaterialRequest,
+  CreateMaterialTransactionRequest,
+  Material,
+  MaterialStock,
+  MaterialTransaction,
+} from "../types/material";
 import type { CreatePersonnelRequest, Personnel } from "../types/personnel";
 import type { CreateSiteRequest, Site } from "../types/site";
 import { clearAuth, getToken, type AuthUser } from "./auth";
@@ -167,5 +174,75 @@ export async function createMachine(request: CreateMachineRequest): Promise<Mach
     throw new Error(message || `Makine oluşturulamadı (HTTP ${response.status})`);
   }
 
+  return response.json();
+}
+
+export async function getMaterials(): Promise<Material[]> {
+  const response = await apiFetch("/materials");
+  if (!response.ok) {
+    throw new Error(`Malzemeler alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createMaterial(request: CreateMaterialRequest): Promise<Material> {
+  const response = await apiFetch("/materials", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Malzeme oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `Malzeme oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function getMaterialStocks(siteId?: number): Promise<MaterialStock[]> {
+  const path = siteId !== undefined ? `/material-stocks?siteId=${siteId}` : "/material-stocks";
+  const response = await apiFetch(path);
+  if (!response.ok) {
+    throw new Error(`Stok bilgisi alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createMaterialTransaction(
+  request: CreateMaterialTransactionRequest,
+): Promise<MaterialTransaction> {
+  const response = await apiFetch("/material-transactions", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `Stok hareketi kaydedilemedi (HTTP ${response.status})`;
+    throw new Error(message || `Stok hareketi kaydedilemedi (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function getMaterialTransactions(
+  siteId?: number,
+  materialId?: number,
+): Promise<MaterialTransaction[]> {
+  const params = new URLSearchParams();
+  if (siteId !== undefined) params.set("siteId", String(siteId));
+  if (materialId !== undefined) params.set("materialId", String(materialId));
+  const query = params.toString();
+  const response = await apiFetch(`/material-transactions${query ? `?${query}` : ""}`);
+  if (!response.ok) {
+    throw new Error(`Stok hareketleri alınamadı (HTTP ${response.status})`);
+  }
   return response.json();
 }
