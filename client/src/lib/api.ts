@@ -21,6 +21,7 @@ import type {
   MaterialStock,
   MaterialTransaction,
 } from "../types/material";
+import type { NotificationsResponse } from "../types/notification";
 import type { CreatePersonnelRequest, Personnel } from "../types/personnel";
 import type {
   CreateShiftAssignmentRequest,
@@ -33,6 +34,7 @@ import type { CreateWorkOrderRequest, WorkOrder } from "../types/workOrder";
 import { clearAuth, getToken, type AuthUser } from "./auth";
 
 const API_BASE_URL = "http://localhost:5050/api";
+export const NOTIFICATIONS_HUB_URL = "http://localhost:5050/hubs/notifications";
 
 // Central fetch wrapper: attaches the bearer token to every request and,
 // on a 401 (missing/expired/invalid token), clears the session and forces
@@ -592,5 +594,27 @@ export async function checkOutShiftAssignment(id: number): Promise<void> {
   const response = await apiFetch(`/shift-assignments/${id}/checkout`, { method: "PUT" });
   if (!response.ok) {
     throw new Error(`Check-out yapılamadı (HTTP ${response.status})`);
+  }
+}
+
+export async function getNotifications(): Promise<NotificationsResponse> {
+  const response = await apiFetch("/notifications");
+  if (!response.ok) {
+    throw new Error(`Bildirimler alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function markNotificationRead(id: number): Promise<void> {
+  const response = await apiFetch(`/notifications/${id}/read`, { method: "PUT" });
+  if (!response.ok) {
+    throw new Error(`Bildirim okundu işaretlenemedi (HTTP ${response.status})`);
+  }
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  const response = await apiFetch("/notifications/read-all", { method: "PUT" });
+  if (!response.ok) {
+    throw new Error(`Bildirimler okundu işaretlenemedi (HTTP ${response.status})`);
   }
 }

@@ -1,3 +1,4 @@
+using FieldOps.Application.Notifications;
 using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Entities;
 using FieldOps.Domain.Interfaces;
@@ -9,15 +10,18 @@ public class AuditFindingService
     private readonly IAuditFindingRepository _repository;
     private readonly IAuditRepository _auditRepository;
     private readonly WorkOrderService _workOrderService;
+    private readonly NotificationService _notificationService;
 
     public AuditFindingService(
         IAuditFindingRepository repository,
         IAuditRepository auditRepository,
-        WorkOrderService workOrderService)
+        WorkOrderService workOrderService,
+        NotificationService notificationService)
     {
         _repository = repository;
         _auditRepository = auditRepository;
         _workOrderService = workOrderService;
+        _notificationService = notificationService;
     }
 
     public async Task<IEnumerable<AuditFindingDto>> GetAsync(int? auditId)
@@ -92,6 +96,13 @@ public class AuditFindingService
             $"{audit.Type} denetiminde tespit edildi. Şantiye: {audit.SiteName}.",
             "audit_finding",
             audit.Id);
+
+        await _notificationService.CreateAsync(
+            "audit_finding",
+            "audit",
+            audit.Id,
+            $"{audit.SiteName} — {severity} denetim bulgusu: {description}",
+            severity);
     }
 
     private static AuditFindingDto ToDto(AuditFinding finding) => new()

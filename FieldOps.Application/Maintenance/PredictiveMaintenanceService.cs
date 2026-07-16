@@ -1,3 +1,4 @@
+using FieldOps.Application.Notifications;
 using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Entities;
 using FieldOps.Domain.Interfaces;
@@ -13,19 +14,22 @@ public class PredictiveMaintenanceService
     private readonly IMachineUsageLogRepository _usageLogRepository;
     private readonly IMaintenancePredictionRepository _predictionRepository;
     private readonly WorkOrderService _workOrderService;
+    private readonly NotificationService _notificationService;
 
     public PredictiveMaintenanceService(
         IMachineRepository machineRepository,
         IMaintenanceRecordRepository maintenanceRecordRepository,
         IMachineUsageLogRepository usageLogRepository,
         IMaintenancePredictionRepository predictionRepository,
-        WorkOrderService workOrderService)
+        WorkOrderService workOrderService,
+        NotificationService notificationService)
     {
         _machineRepository = machineRepository;
         _maintenanceRecordRepository = maintenanceRecordRepository;
         _usageLogRepository = usageLogRepository;
         _predictionRepository = predictionRepository;
         _workOrderService = workOrderService;
+        _notificationService = notificationService;
     }
 
     public async Task<MaintenancePredictionDto?> RecalculateForMachineAsync(int machineId)
@@ -76,6 +80,13 @@ public class PredictiveMaintenanceService
                 prediction.Basis,
                 "maintenance_prediction",
                 machine.Id);
+
+            await _notificationService.CreateAsync(
+                "maintenance_prediction",
+                "machine",
+                machine.Id,
+                $"{machine.Name} için bakım riski %{riskScore:F0}'a ulaştı.",
+                "high");
         }
 
         return ToDto(prediction);

@@ -1,10 +1,12 @@
 using System.Text;
+using FieldOps.Api.Hubs;
 using FieldOps.Api.Services;
 using FieldOps.Application.Audits;
 using FieldOps.Application.Auth;
 using FieldOps.Application.Machines;
 using FieldOps.Application.Maintenance;
 using FieldOps.Application.Materials;
+using FieldOps.Application.Notifications;
 using FieldOps.Application.Personnel;
 using FieldOps.Application.Shifts;
 using FieldOps.Application.Sites;
@@ -26,14 +28,18 @@ builder.Host.UseSerilog((context, configuration) =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 const string ClientCorsPolicy = "ClientCorsPolicy";
 builder.Services.AddCors(options =>
 {
+    // AllowCredentials is required for the SignalR JS client's negotiate request, which sends
+    // credentials: 'include' by default; only legal alongside a specific origin (not AnyOrigin).
     options.AddPolicy(ClientCorsPolicy, policy =>
         policy.WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 builder.Services.AddSingleton<IDbConnectionFactory, NpgsqlConnectionFactory>();
@@ -89,6 +95,10 @@ builder.Services.AddScoped<ShiftAssignmentService>();
 builder.Services.AddScoped<IValidator<CreateShiftRequest>, CreateShiftRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateShiftAssignmentRequest>, CreateShiftAssignmentRequestValidator>();
 
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationBroadcaster, SignalRNotificationBroadcaster>();
+builder.Services.AddScoped<NotificationService>();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterRequestValidator>();
@@ -110,6 +120,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
         };
+
+        // SignalR's browser client can't attach an Authorization header to its WebSocket/SSE
+        // handshake, so it sends the JWT as an "access_token" query param instead — accept that
+        // for the notifications hub only, not for regular HTTP API requests.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    context.HttpContext.Request.Path.StartsWithSegments("/hubs/notifications"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -130,6 +158,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 var summaries = new[]
 {

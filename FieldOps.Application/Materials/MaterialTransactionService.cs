@@ -1,3 +1,4 @@
+using FieldOps.Application.Notifications;
 using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Entities;
 using FieldOps.Domain.Exceptions;
@@ -10,15 +11,18 @@ public class MaterialTransactionService
     private readonly IMaterialStockRepository _stockRepository;
     private readonly IMaterialTransactionRepository _transactionRepository;
     private readonly WorkOrderService _workOrderService;
+    private readonly NotificationService _notificationService;
 
     public MaterialTransactionService(
         IMaterialStockRepository stockRepository,
         IMaterialTransactionRepository transactionRepository,
-        WorkOrderService workOrderService)
+        WorkOrderService workOrderService,
+        NotificationService notificationService)
     {
         _stockRepository = stockRepository;
         _transactionRepository = transactionRepository;
         _workOrderService = workOrderService;
+        _notificationService = notificationService;
     }
 
     public async Task<MaterialTransactionResult> CreateAsync(CreateMaterialTransactionRequest request)
@@ -71,6 +75,13 @@ public class MaterialTransactionService
             $"Mevcut: {stock.Quantity} {stock.Unit}, eşik: {stock.ReorderThreshold} {stock.Unit}. Şantiye: {stock.SiteName}.",
             "low_stock",
             stock.Id);
+
+        await _notificationService.CreateAsync(
+            "low_stock",
+            "material",
+            stock.Id,
+            $"{stock.SiteName} — {stock.MaterialName} stoğu eşiğin altına düştü ({stock.Quantity} {stock.Unit}).",
+            "high");
     }
 
     private static MaterialTransactionDto ToDto(MaterialTransaction transaction) => new()

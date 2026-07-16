@@ -1,7 +1,8 @@
-import { Bell, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { clearAuth, getAuth } from "../lib/auth";
+import { NotificationBell } from "./NotificationBell";
 import { Sidebar } from "./Sidebar";
 
 interface LayoutProps {
@@ -28,14 +29,7 @@ export function Layout({ title, actions, children }: LayoutProps) {
           <h1 className="text-lg font-semibold text-white">{title}</h1>
           <div className="flex items-center gap-4">
             {actions}
-            <button
-              type="button"
-              disabled
-              aria-label="Bildirimler (yakında)"
-              className="cursor-not-allowed rounded-lg p-2 text-slate-500"
-            >
-              <Bell size={18} strokeWidth={2} />
-            </button>
+            <NotificationBell />
             {auth && (
               <div className="flex items-center gap-3 border-l border-navy-700 pl-4">
                 <div className="text-right leading-tight">
