@@ -152,3 +152,16 @@ export async function apiCreateAuditFinding(
   });
   return response.json();
 }
+
+export async function apiCreateWorkOrder(
+  request: APIRequestContext,
+  token: string,
+  siteId: number,
+  title: string,
+): Promise<{ id: number }> {
+  const response = await request.post(`${API_BASE_URL}/work-orders`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { siteId, title, description: null, priority: "medium", assignedTo: null },
+  });
+  return response.json();
+}

@@ -7,6 +7,9 @@ const statusColors: Record<string, string> = {
   completed: "bg-sky-500/15 text-sky-400 border-sky-500/30",
   on_hold: "bg-amber-500/15 text-amber-400 border-amber-500/30",
   inactive: "bg-slate-500/15 text-slate-400 border-slate-500/30",
+  open: "bg-brand-500/15 text-brand-500 border-brand-500/30",
+  in_progress: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  cancelled: "bg-slate-500/15 text-slate-400 border-slate-500/30",
 };
 
 export function Badge({ children }: BadgeProps) {

@@ -1,6 +1,7 @@
 import {
   Building2,
   ClipboardCheck,
+  ClipboardList,
   LayoutDashboard,
   Package,
   Truck,
@@ -22,6 +23,7 @@ const navItems: NavItem[] = [
   { label: "Machines", icon: Truck, to: "/machines" },
   { label: "Materials", icon: Package, to: "/materials" },
   { label: "Audits", icon: ClipboardCheck, to: "/audits" },
+  { label: "İş Emirleri", icon: ClipboardList, to: "/work-orders" },
 ];
 
 export function Sidebar() {

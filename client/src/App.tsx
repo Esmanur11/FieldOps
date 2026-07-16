@@ -11,6 +11,8 @@ import { PersonnelDetailPage } from "./pages/PersonnelDetailPage";
 import { PersonnelPage } from "./pages/PersonnelPage";
 import { SiteDetailPage } from "./pages/SiteDetailPage";
 import { SitesPage } from "./pages/SitesPage";
+import { WorkOrderDetailPage } from "./pages/WorkOrderDetailPage";
+import { WorkOrdersPage } from "./pages/WorkOrdersPage";
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
           <Route path="/materials" element={<MaterialsPage />} />
           <Route path="/audits" element={<AuditsPage />} />
           <Route path="/audits/:id" element={<AuditDetailPage />} />
+          <Route path="/work-orders" element={<WorkOrdersPage />} />
+          <Route path="/work-orders/:id" element={<WorkOrderDetailPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -23,6 +23,7 @@ import type {
 } from "../types/material";
 import type { CreatePersonnelRequest, Personnel } from "../types/personnel";
 import type { CreateSiteRequest, Site } from "../types/site";
+import type { CreateWorkOrderRequest, WorkOrder } from "../types/workOrder";
 import { clearAuth, getToken, type AuthUser } from "./auth";
 
 const API_BASE_URL = "http://localhost:5050/api";
@@ -443,5 +444,70 @@ export async function updateAuditFinding(
         ? Object.values(body).flat().join(", ")
         : `Bulgu güncellenemedi (HTTP ${response.status})`;
     throw new Error(message || `Bulgu güncellenemedi (HTTP ${response.status})`);
+  }
+}
+
+export async function getWorkOrders(siteId?: number, status?: string): Promise<WorkOrder[]> {
+  const params = new URLSearchParams();
+  if (siteId !== undefined) params.set("siteId", String(siteId));
+  if (status !== undefined) params.set("status", status);
+  const query = params.toString();
+  const response = await apiFetch(`/work-orders${query ? `?${query}` : ""}`);
+  if (!response.ok) {
+    throw new Error(`İş emirleri alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getWorkOrderById(id: number): Promise<WorkOrder> {
+  const response = await apiFetch(`/work-orders/${id}`);
+  if (response.status === 404) {
+    throw new Error("İş emri bulunamadı");
+  }
+  if (!response.ok) {
+    throw new Error(`İş emri alınamadı (HTTP ${response.status})`);
+  }
+  return response.json();
+}
+
+export async function createWorkOrder(request: CreateWorkOrderRequest): Promise<WorkOrder> {
+  const payload = { ...request, description: request.description || null };
+
+  const response = await apiFetch("/work-orders", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    const message =
+      body && typeof body === "object"
+        ? Object.values(body).flat().join(", ")
+        : `İş emri oluşturulamadı (HTTP ${response.status})`;
+    throw new Error(message || `İş emri oluşturulamadı (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function updateWorkOrderStatus(id: number, status: string): Promise<void> {
+  const response = await apiFetch(`/work-orders/${id}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`İş emri durumu güncellenemedi (HTTP ${response.status})`);
+  }
+}
+
+export async function assignWorkOrder(id: number, assignedTo: number | null): Promise<void> {
+  const response = await apiFetch(`/work-orders/${id}/assign`, {
+    method: "PUT",
+    body: JSON.stringify({ assignedTo }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`İş emri atanamadı (HTTP ${response.status})`);
   }
 }

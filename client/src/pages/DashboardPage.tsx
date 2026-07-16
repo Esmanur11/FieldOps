@@ -12,6 +12,7 @@ import {
   getMaterialStocks,
   getPersonnel,
   getSites,
+  getWorkOrders,
 } from "../lib/api";
 import type { AuditFinding } from "../types/audit";
 import type { Machine } from "../types/machine";
@@ -19,6 +20,13 @@ import type { MaintenancePrediction } from "../types/maintenance";
 import type { Material, MaterialStock } from "../types/material";
 import type { Personnel } from "../types/personnel";
 import type { Site } from "../types/site";
+import type { WorkOrder } from "../types/workOrder";
+
+const sourceTypeLabels: Record<string, string> = {
+  audit_finding: "Denetim",
+  maintenance_prediction: "Bakım",
+  low_stock: "Stok",
+};
 
 interface KpiCardProps {
   label: string;
@@ -51,6 +59,7 @@ export function DashboardPage() {
   const [materialStocks, setMaterialStocks] = useState<MaterialStock[]>([]);
   const [maintenancePredictions, setMaintenancePredictions] = useState<MaintenancePrediction[]>([]);
   const [auditFindings, setAuditFindings] = useState<AuditFinding[]>([]);
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -63,6 +72,7 @@ export function DashboardPage() {
       getMaterialStocks(),
       getMaintenancePredictions(),
       getAuditFindings(),
+      getWorkOrders(),
     ])
       .then(
         ([
@@ -73,6 +83,7 @@ export function DashboardPage() {
           materialStocksData,
           predictionsData,
           auditFindingsData,
+          workOrdersData,
         ]) => {
           setSites(sitesData);
           setPersonnel(personnelData);
@@ -81,6 +92,7 @@ export function DashboardPage() {
           setMaterialStocks(materialStocksData);
           setMaintenancePredictions(predictionsData);
           setAuditFindings(auditFindingsData);
+          setWorkOrders(workOrdersData);
         },
       )
       .catch((err) =>
@@ -102,12 +114,21 @@ export function DashboardPage() {
   const criticalOpenFindingCount = openFindings.filter(
     (finding) => finding.severity === "critical",
   ).length;
+  const openWorkOrders = workOrders.filter((workOrder) => workOrder.status === "open");
+  const openWorkOrderBreakdown = Object.entries(sourceTypeLabels)
+    .map(([sourceType, label]) => ({
+      label,
+      count: openWorkOrders.filter((wo) => wo.sourceType === sourceType).length,
+    }))
+    .filter((entry) => entry.count > 0)
+    .map((entry) => `${entry.label}: ${entry.count}`)
+    .join(" · ");
 
   return (
     <Layout title="FieldOps — Genel Bakış">
       {loadError && <p className="mb-6 text-sm text-red-400">{loadError}</p>}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-9">
         <KpiCard label="Toplam Şantiye" value={isLoading ? "…" : String(totalSites)} />
         <KpiCard label="Aktif Şantiye" value={isLoading ? "…" : String(activeSites)} />
         <KpiCard label="Personnel" value={isLoading ? "…" : String(totalPersonnel)} />
@@ -123,6 +144,11 @@ export function DashboardPage() {
               ? `${criticalOpenFindingCount} kritik`
               : undefined
           }
+        />
+        <KpiCard
+          label="Açık İş Emirleri"
+          value={isLoading ? "…" : String(openWorkOrders.length)}
+          highlight={!isLoading && openWorkOrderBreakdown ? openWorkOrderBreakdown : undefined}
         />
       </div>
 

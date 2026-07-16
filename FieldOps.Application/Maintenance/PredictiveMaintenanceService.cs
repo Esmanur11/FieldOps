@@ -1,3 +1,4 @@
+using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Entities;
 using FieldOps.Domain.Interfaces;
 
@@ -5,21 +6,26 @@ namespace FieldOps.Application.Maintenance;
 
 public class PredictiveMaintenanceService
 {
+    private const decimal HighRiskThreshold = 80m;
+
     private readonly IMachineRepository _machineRepository;
     private readonly IMaintenanceRecordRepository _maintenanceRecordRepository;
     private readonly IMachineUsageLogRepository _usageLogRepository;
     private readonly IMaintenancePredictionRepository _predictionRepository;
+    private readonly WorkOrderService _workOrderService;
 
     public PredictiveMaintenanceService(
         IMachineRepository machineRepository,
         IMaintenanceRecordRepository maintenanceRecordRepository,
         IMachineUsageLogRepository usageLogRepository,
-        IMaintenancePredictionRepository predictionRepository)
+        IMaintenancePredictionRepository predictionRepository,
+        WorkOrderService workOrderService)
     {
         _machineRepository = machineRepository;
         _maintenanceRecordRepository = maintenanceRecordRepository;
         _usageLogRepository = usageLogRepository;
         _predictionRepository = predictionRepository;
+        _workOrderService = workOrderService;
     }
 
     public async Task<MaintenancePredictionDto?> RecalculateForMachineAsync(int machineId)
@@ -61,6 +67,17 @@ public class PredictiveMaintenanceService
 
         var id = await _predictionRepository.AddAsync(prediction);
         prediction.Id = id;
+
+        if (riskScore >= HighRiskThreshold)
+        {
+            await _workOrderService.AutoCreateAsync(
+                machine.SiteId,
+                $"Bakım gerekli: {machine.Name} (risk %{riskScore:F0})",
+                prediction.Basis,
+                "maintenance_prediction",
+                machine.Id);
+        }
+
         return ToDto(prediction);
     }
 

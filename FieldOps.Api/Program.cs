@@ -7,6 +7,7 @@ using FieldOps.Application.Maintenance;
 using FieldOps.Application.Materials;
 using FieldOps.Application.Personnel;
 using FieldOps.Application.Sites;
+using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Interfaces;
 using FieldOps.Infrastructure;
 using FieldOps.Infrastructure.Repositories;
@@ -46,6 +47,12 @@ builder.Services.AddScoped<IValidator<CreatePersonnelRequest>, CreatePersonnelRe
 builder.Services.AddScoped<IMachineRepository, MachineRepository>();
 builder.Services.AddScoped<MachineService>();
 builder.Services.AddScoped<IValidator<CreateMachineRequest>, CreateMachineRequestValidator>();
+
+builder.Services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
+builder.Services.AddScoped<WorkOrderService>();
+builder.Services.AddScoped<IValidator<CreateWorkOrderRequest>, CreateWorkOrderRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdateWorkOrderStatusRequest>, UpdateWorkOrderStatusRequestValidator>();
+builder.Services.AddScoped<IValidator<AssignWorkOrderRequest>, AssignWorkOrderRequestValidator>();
 
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<IMaterialStockRepository, MaterialStockRepository>();

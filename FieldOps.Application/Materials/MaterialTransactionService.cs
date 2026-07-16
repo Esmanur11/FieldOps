@@ -1,3 +1,4 @@
+using FieldOps.Application.WorkOrders;
 using FieldOps.Domain.Entities;
 using FieldOps.Domain.Exceptions;
 using FieldOps.Domain.Interfaces;
@@ -8,13 +9,16 @@ public class MaterialTransactionService
 {
     private readonly IMaterialStockRepository _stockRepository;
     private readonly IMaterialTransactionRepository _transactionRepository;
+    private readonly WorkOrderService _workOrderService;
 
     public MaterialTransactionService(
         IMaterialStockRepository stockRepository,
-        IMaterialTransactionRepository transactionRepository)
+        IMaterialTransactionRepository transactionRepository,
+        WorkOrderService workOrderService)
     {
         _stockRepository = stockRepository;
         _transactionRepository = transactionRepository;
+        _workOrderService = workOrderService;
     }
 
     public async Task<MaterialTransactionResult> CreateAsync(CreateMaterialTransactionRequest request)
@@ -31,6 +35,7 @@ public class MaterialTransactionService
         try
         {
             var recorded = await _stockRepository.RecordTransactionAsync(transaction);
+            await AutoCreateWorkOrderIfLowStockAsync(request.SiteId, request.MaterialId);
             return new MaterialTransactionResult { Transaction = ToDto(recorded) };
         }
         catch (InsufficientStockException ex)
@@ -46,6 +51,26 @@ public class MaterialTransactionService
     {
         var transactions = await _transactionRepository.GetAsync(siteId, materialId);
         return transactions.Select(ToDto);
+    }
+
+    // Re-reads the post-transaction stock level (rather than threading it through
+    // RecordTransactionAsync's return value) to keep that method's concurrency-critical locking
+    // logic focused on the stock update itself.
+    private async Task AutoCreateWorkOrderIfLowStockAsync(int siteId, int materialId)
+    {
+        var stocks = await _stockRepository.GetDetailedAsync(siteId);
+        var stock = stocks.FirstOrDefault(s => s.MaterialId == materialId);
+        if (stock is null || stock.Quantity > stock.ReorderThreshold)
+        {
+            return;
+        }
+
+        await _workOrderService.AutoCreateAsync(
+            siteId,
+            $"Düşük stok: {stock.MaterialName}",
+            $"Mevcut: {stock.Quantity} {stock.Unit}, eşik: {stock.ReorderThreshold} {stock.Unit}. Şantiye: {stock.SiteName}.",
+            "low_stock",
+            stock.Id);
     }
 
     private static MaterialTransactionDto ToDto(MaterialTransaction transaction) => new()

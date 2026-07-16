@@ -56,16 +56,17 @@ public class AuditFindingRepository : IAuditFindingRepository
         return await connection.ExecuteScalarAsync<int>(sql, finding);
     }
 
-    public async Task<int> UpdateAsync(AuditFinding finding)
+    public async Task<int?> UpdateAsync(AuditFinding finding)
     {
         const string sql = """
             UPDATE audit_findings
             SET category = @Category, severity = @Severity, description = @Description,
                 corrective_action = @CorrectiveAction, due_date = @DueDate, status = @Status
             WHERE id = @Id
+            RETURNING audit_id
             """;
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.ExecuteAsync(sql, finding);
+        return await connection.QuerySingleOrDefaultAsync<int?>(sql, finding);
     }
 }
